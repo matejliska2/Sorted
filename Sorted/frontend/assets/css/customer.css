@@ -1,0 +1,232 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at center, #220033, #11001a);
+    color: #f2e6ff;
+    padding: 2rem;
+}
+
+.dashboard {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: rgba(30, 0, 50, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    box-shadow: 0 0 35px rgba(160, 0, 255, 0.2);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+h2 {
+    color: #ffffff;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 6px #8a00c2;
+}
+
+label {
+    font-size: 1rem;
+    color: #e6ccff;
+}
+
+select,
+input,
+textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background-color: rgba(44, 0, 64, 0.25);
+    border: 1px solid #9100ff;
+    color: #fff;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(6px);
+    transition: border 0.3s ease;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+    border-color: #cc33ff;
+    outline: none;
+    box-shadow: 0 0 10px rgba(200, 0, 255, 0.3);
+}
+
+button {
+    padding: 0.7rem 1.2rem;
+    background: linear-gradient(to right, #9100ff, #cc33ff);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    min-width: 100px;
+}
+
+button:hover {
+    background: linear-gradient(to right, #a100ff, #ff5af0);
+    box-shadow: 0 0 10px rgba(185, 0, 255, 0.4);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(153, 0, 255, 0.15);
+}
+
+th,
+td {
+    padding: 0.75rem 0.6rem;
+    border-bottom: 1px solid #44005d;
+    text-align: left;
+}
+
+th {
+    background-color: #2a0040;
+    color: #ffdfff;
+}
+
+tr:nth-child(even) {
+    background-color: rgba(35, 0, 60, 0.25);
+}
+
+tr:hover {
+    background-color: rgba(70, 0, 120, 0.35);
+}
+
+#filter {
+    max-width: 200px;
+    margin-bottom: 1.5rem;
+}
+
+#status-message {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    display: none;
+    font-weight: 500;
+    backdrop-filter: blur(6px);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-success {
+    color: #e4d2ff;
+    background-color: rgba(145, 0, 255, 0.1);
+    border-left: 4px solid #a74aff;
+}
+
+.status-error {
+    color: #ffd1f4;
+    background-color: rgba(255, 0, 123, 0.1);
+    border-left: 4px solid #ff4d99;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+table {
+    margin-bottom: 2rem;
+    /* add this */
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 1rem;
+        margin: 1rem;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th,
+    td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+
+    select,
+    input,
+    textarea,
+    button {
+        font-size: 0.95rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-group {
+        display: block;
+        width: 100%;
+    }
+
+    .update-btn {
+        display: block;
+        width: 100%;
+    }
+}
+
+/* Scrollable table area */
+.order-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+/* Sticky headers */
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #2a0040;
+    z-index: 10;
+}
+
+/* Row on hover */
+tr:hover {
+    background-color: rgba(180, 0, 255, 0.1);
+}
+
+/* Focused input feedback */
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #ff80ff;
+    box-shadow: 0 0 5px #cc33ff;
+}
+
+/* Status styling */
+select.pending {
+    border-left: 4px solid #ffc107;
+}
+
+select.in_progress {
+    border-left: 4px solid #00bfff;
+}
+
+select.completed {
+    border-left: 4px solid #28a745;
+}
+
+/* Timestamp at the bottom */
+.timestamp {
+    font-size: 0.8rem;
+    color: #aaa;
+    text-align: right;
+    margin-top: -0.5rem;
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Customer dashboard</title>
+    <link rel="stylesheet" href="../assets/css/customer.css" />
+</head>
+
+<body>
+    <div class="dashboard">
+        <h2>Customer dashboard</h2>
+        <div id="status-message" style="margin-bottom: 1.5rem;"></div>
+
+        <label for="filter">Filter by Status:</label>
+        <select id="filter">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+        </select>
+        <div class="order-table-container">
+            <table id="order-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Your Status</th>
+                        <th>Created</th>
+                        <th>Update</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <p id="last-updated" class="timestamp"></p>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        protectPage('customer');
+
+        const token = localStorage.getItem('auth_token');
+        const payload = token.split('.')[1];
+        const decoded = JSON.parse(atob(payload));
+        const userId = decoded.id;
+
+        function showStatusMessage(message, success = true) {
+            const box = document.getElementById('status-message');
+            box.textContent = message;
+            box.className = success ? 'status-success' : 'status-error';
+            box.style.display = 'block';
+
+            setTimeout(() => {
+                box.style.display = 'none';
+            }, 3000);
+        }
+
+        async function loadOrders(filter = 'all') {
+            const res = await fetch(`http://localhost:4000/api/orders/user/${userId}`);
+            const orders = await res.json();
+            const table = document.querySelector('#order-table tbody');
+            table.innerHTML = '';
+
+            const filtered = filter === 'all' ? orders : orders.filter(order => order.customer_status === filter);
+
+            filtered.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+          <td>${order.id}</td>
+          <td>${order.title}</td>
+          <td>${order.description}</td>
+          <td>
+            <select data-id="${order.id}" class="status-select">
+              <option value="pending" ${order.customer_status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="in_progress" ${order.customer_status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+              <option value="completed" ${order.customer_status === 'completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td>${new Date(order.created_at).toLocaleDateString()}</td>
+          <td>
+            <button data-id="${order.id}" class="update-btn">Update</button>
+          </td>
+        `;
+                table.appendChild(row);
+            });
+
+            attachUpdateListeners();
+
+            if (filtered.length === 0) {
+                table.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 1rem;">No orders found.</td></tr>';
+            }
+
+            const timestamp = document.getElementById('last-updated');
+            if (timestamp) {
+                timestamp.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+            }
+        }
+
+        function attachUpdateListeners() {
+            document.querySelectorAll('.update-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.dataset.id;
+                    const select = document.querySelector(`select[data-id="${id}"]`);
+                    const customer_status = select.value;
+
+                    const res = await fetch(`http://localhost:4000/api/orders/customer/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ customer_status })
+                    });
+
+                    if (res.ok) {
+                        showStatusMessage('✅ Status updated!');
+                        loadOrders();
+                    } else {
+                        const err = await res.json();
+                        showStatusMessage('❌ ' + err.error, false);
+                    }
+                });
+            });
+        }
+
+        document.getElementById('filter').addEventListener('change', (e) => {
+            loadOrders(e.target.value);
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '../login.html';
+        }
+
+        loadOrders();
+
+        // Auto-refresh orders every 15 seconds
+        setInterval(() => {
+            const filter = document.getElementById('filter').value;
+            loadOrders(filter);
+        }, 5000);
+
+    </script>
+</body>
+
+</html>

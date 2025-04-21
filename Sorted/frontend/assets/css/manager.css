@@ -1,0 +1,284 @@
+/* === BASE === */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at center, #220033, #11001a);
+    color: #e6d9ff;
+    padding: 2rem;
+}
+
+/* === DASHBOARD WRAPPER === */
+.dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: rgba(30, 0, 50, 0.2);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 35px rgba(144, 0, 255, 0.2);
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* === HEADERS === */
+h2,
+h3 {
+    color: #ffffff;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 6px #8a00c2;
+}
+
+/* === FORM ELEMENTS === */
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #9100ff;
+    border-radius: 8px;
+    background-color: rgba(44, 0, 64, 0.25);
+    color: #fff;
+    margin-bottom: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #cc33ff;
+    box-shadow: 0 0 8px rgba(185, 0, 255, 0.4);
+}
+
+/* === READ-ONLY LOOK === */
+input[readonly],
+textarea[readonly],
+select:disabled {
+    background-color: transparent;
+    color: #fff;
+    border: none;
+    pointer-events: none;
+}
+
+/* === BUTTONS === */
+button {
+    padding: 0.7rem 1.2rem;
+    background: linear-gradient(to right, #9100ff, #cc33ff);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    min-width: 70px;
+    margin: 0.25rem 0.3rem;
+}
+
+button:hover {
+    background: linear-gradient(to right, #a100ff, #ff5af0);
+    box-shadow: 0 0 10px rgba(185, 0, 255, 0.4);
+}
+
+/* === FILTER SELECT === */
+#filter {
+    max-width: 200px;
+    margin-bottom: 1.5rem;
+}
+
+/* === TABLE === */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(153, 0, 255, 0.15);
+}
+
+th {
+    background-color: #2d0044;
+    color: #ffdbff;
+    text-align: left;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+}
+
+td {
+    vertical-align: middle;
+    padding: 0.75rem 0.6rem;
+    border-bottom: 1px solid #3d0057;
+}
+
+td input,
+td textarea,
+td select {
+    width: 95%;
+    padding: 0.6rem 0.8rem;
+    margin: 0 auto;
+    display: block;
+    font-size: 0.95rem;
+}
+
+/* Extra spacing for Title/Description cells */
+table td:nth-child(3),
+table td:nth-child(4) {
+    padding-right: 1.2rem;
+}
+
+/* Table striping */
+tr:nth-child(even) {
+    background-color: rgba(35, 0, 60, 0.25);
+}
+
+tr:hover {
+    background-color: rgba(70, 0, 120, 0.35);
+}
+
+/* === ANIMATION === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+td:last-child,
+th:last-child {
+    text-align: right;
+}
+
+#status-message {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: none;
+    animation: fadeSlide 0.4s ease;
+    font-weight: 500;
+    backdrop-filter: blur(6px);
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-success {
+    color: #e4d2ff;
+    background-color: rgba(145, 0, 255, 0.1);
+    border-left: 4px solid #a74aff;
+}
+
+.status-error {
+    color: #ffd1f4;
+    background-color: rgba(255, 0, 123, 0.1);
+    border-left: 4px solid #ff4d99;
+}
+
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 1rem;
+        margin: 1rem;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th,
+    td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+
+    select,
+    input,
+    textarea,
+    button {
+        font-size: 0.95rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-group {
+        display: block;
+        width: 100%;
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Scrollable table area */
+.order-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+/* Sticky headers */
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #2a0040;
+    z-index: 10;
+}
+
+/* Row on hover */
+tr:hover {
+    background-color: rgba(180, 0, 255, 0.1);
+}
+
+/* Focused input feedback */
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #ff80ff;
+    box-shadow: 0 0 5px #cc33ff;
+}
+
+/* Status styling */
+select.pending {
+    border-left: 4px solid #ffc107;
+}
+
+select.in_progress {
+    border-left: 4px solid #00bfff;
+}
+
+select.completed {
+    border-left: 4px solid #28a745;
+}
+
+/* Timestamp at the bottom */
+.timestamp {
+    font-size: 0.8rem;
+    color: #aaa;
+    text-align: right;
+    margin-top: -0.5rem;
+}

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Manager Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/manager.css" />
+</head>
+
+<body>
+    <div id="status-message" style="margin-bottom: 1rem;"></div>
+    <div class="dashboard">
+        <h2>Manager Dashboard</h2>
+        <p>All customer orders:</p>
+
+        <label for="filter">Filter by Status:</label>
+        <select id="filter">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+        </select>
+
+        <div class="order-table-container">
+            <table id="order-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Title</th>
+                        <th>Status (Customer)</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <p id="last-updated" class="timestamp"></p>
+        <h3>Create New Order</h3>
+        <form id="order-form">
+            <select name="user_id" id="customer-select" required>
+                <option value="">Select a customer</option>
+            </select>
+            <input type="text" placeholder="Title" name="title" required />
+            <textarea placeholder="Description" name="description"></textarea>
+            <select name="status">
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+            </select>
+            <button type="submit">Create Order</button>
+        </form>
+
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        protectPage('manager');
+        let isEditing = false;
+        // 👇 Inline message feedback box
+        function showStatusMessage(message, success = true) {
+            const box = document.getElementById('status-message');
+            box.textContent = message;
+            box.className = success ? 'status-success' : 'status-error';
+            box.style.display = 'block';
+
+            setTimeout(() => {
+                box.style.display = 'none';
+            }, 3000);
+        }
+
+
+        async function loadCustomers() {
+            const res = await fetch('http://localhost:4000/api/orders/customers');
+            const customers = await res.json();
+            const select = document.getElementById('customer-select');
+
+            customers.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = c.name;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadOrders(filter = 'all') {
+            const res = await fetch('http://localhost:4000/api/orders');
+            const orders = await res.json();
+            const table = document.querySelector('#order-table tbody');
+            table.innerHTML = '';
+
+            const filtered = filter === 'all' ? orders : orders.filter(order => order.status === filter);
+
+            filtered.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${order.id}</td>
+                <td>${order.customer_name}</td>
+                <td><input type="text" value="${order.title}" data-id="${order.id}" class="edit-title" readonly /></td>
+                <td>${order.customer_status}</td>
+                <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                <td>
+                    <div class="action-buttons">
+                    <button class="edit-btn" data-id="${order.id}">Edit</button>
+                    <button class="save-btn" data-id="${order.id}" style="display:none;">Save</button>
+                    <button class="delete-btn" data-id="${order.id}" data-customer-status="${order.customer_status}">Delete</button>
+                    </div>
+                </td>
+                `;
+
+                table.appendChild(row);
+            });
+
+            attachActionListeners();
+
+            if (filtered.length === 0) {
+                table.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 1rem;">No orders found.</td></tr>';
+            }
+
+            const timestamp = document.getElementById('last-updated');
+            if (timestamp) {
+                timestamp.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+            }
+        }
+
+        function attachActionListeners() {
+            // Delete
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.dataset.id;
+                    const customerStatus = btn.dataset.customerStatus;
+
+                    if (customerStatus !== 'completed') {
+                        showStatusMessage('❌ Cannot delete — order is not completed.', false);
+                        return;
+                    }
+
+                    const res = await fetch(`http://localhost:4000/api/orders/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (res.ok) {
+                        showStatusMessage('✅ Order deleted');
+                        loadOrders();
+                    } else {
+                        const err = await res.json();
+                        showStatusMessage('❌ ' + err.error, false);
+                    }
+                });
+            });
+
+            // Edit
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    isEditing = true;
+                    const id = btn.dataset.id;
+
+                    const titleInput = document.querySelector(`.edit-title[data-id="${id}"]`);
+                    if (titleInput) titleInput.removeAttribute('readonly');
+
+                    const descriptionInput = document.querySelector(`.edit-description[data-id="${id}"]`);
+                    if (descriptionInput) descriptionInput.removeAttribute('readonly');
+
+                    const statusSelect = document.querySelector(`.edit-status[data-id="${id}"]`);
+                    if (statusSelect) statusSelect.disabled = false;
+
+                    btn.style.display = 'none';
+                    document.querySelector(`.save-btn[data-id="${id}"]`).style.display = 'inline-block';
+                });
+            });
+
+            // Save
+            document.querySelectorAll('.save-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.dataset.id;
+
+                    const title = document.querySelector(`.edit-title[data-id="${id}"]`)?.value || '';
+                    const description = document.querySelector(`.edit-description[data-id="${id}"]`)?.value || '';
+                    const status = document.querySelector(`.edit-status[data-id="${id}"]`)?.value || '';
+
+                    const res = await fetch(`http://localhost:4000/api/orders/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, description, status })
+                    });
+
+                    if (res.ok) {
+                        isEditing = false;
+                        showStatusMessage('✅ Order updated');
+                        loadOrders();
+                    } else {
+                        const err = await res.json();
+                        showStatusMessage('❌ ' + err.error, false);
+                    }
+                });
+            });
+        }
+
+
+        // Handle new order form
+        document.getElementById('order-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                user_id: Number(form.user_id.value),
+                title: form.title.value,
+                description: form.description.value,
+                status: form.status.value
+            };
+
+            const res = await fetch('http://localhost:4000/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                showStatusMessage('✅ Order created!');
+                form.reset();
+                loadOrders();
+            } else {
+                const err = await res.json();
+                showStatusMessage('❌ ' + err.error, false);
+            }
+        });
+
+        // Filter select listener
+        document.getElementById('filter').addEventListener('change', (e) => {
+            loadOrders(e.target.value);
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '../login.html';
+        }
+
+        // Load customers and orders on page load
+        loadCustomers();
+        loadOrders();
+
+        setInterval(() => {
+            if (!isEditing) {
+                const filter = document.getElementById('filter').value;
+                loadOrders(filter);
+            }
+        }, 5000);
+
+
+    </script>
+
+</body>
+
+</html>
